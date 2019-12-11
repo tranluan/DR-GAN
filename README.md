@@ -13,7 +13,7 @@
 
 [VGG2](http://www.robots.ox.ac.uk/~vgg/data/vgg_face2/data_infor.html)
 
-Please create txt files with each line in the form <image path>;<person_id> 
+Please create txt files with each line in the form <image_path>;<person_id> 
 
 ## Run the code
 
