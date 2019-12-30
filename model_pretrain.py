@@ -14,7 +14,6 @@ from six.moves import xrange
 from ops import *
 from utils import *
 from Loss_AMSoftmax import *
-from mobilenet.mobilenet_v2_FR import *
 
 SUBJECT_NUM_VGG2 = 8631
 
@@ -373,7 +372,7 @@ class DCGAN(object):
 
     def discriminator(self, image, is_reuse=False, is_training = True):
 
-        '''s16 = int(self.output_size/16)
+        s16 = int(self.output_size/16)
         k0_0 = image
         k0_1 = elu(self.d_bn0_1(conv2d(k0_0, self.df_dim*1, d_h=1, d_w =1, name='d_k01_conv', reuse = is_reuse), train=is_training, reuse = is_reuse), name='d_k01_prelu')
         k0_2 = elu(self.d_bn0_2(conv2d(k0_1, self.df_dim*2, d_h=1, d_w =1, name='d_k02_conv', reuse = is_reuse), train=is_training, reuse = is_reuse), name='d_k02_prelu')
@@ -401,29 +400,14 @@ class DCGAN(object):
 
         #k6_real = linear(k5, 1,                'd_k6_real_lin')'''
 
-        k5, _ = mobilenet_v2_FR_sz224(image, is_training=True, is_reuse=is_reuse, name='d_MobilenetV2')
 
-        k5_normalized = tf.nn.l2_normalize(k5, 0, 1e-10, name='k5_norm')
+        k5_normalized = tf.nn.l2_normalize(k5_id, 0, 1e-10, name='k5_norm')
         k6_id_VGG2, w_VGG2 = linear_no_bias(k5_normalized, SUBJECT_NUM_VGG2, 'd_k6_id_VGG2', reuse=is_reuse, with_w=True)
-        k6_id_DeepCam1, w_deepcam1 = linear_no_bias(k5_normalized, SUBJECT_NUM_DEEPCAM1, 'd_k6_id_DeepCam1', reuse=is_reuse, with_w=True)
-        k6_id_DeepCam2, w_deepcam2 = linear_no_bias(k5_normalized, SUBJECT_NUM_DEEPCAM2, 'd_k6_id_DeepCam2', reuse=is_reuse, with_w=True)
-        k6_id_DeepCam3, w_deepcam3 = linear_no_bias(k5_normalized, SUBJECT_NUM_DEEPCAM3, 'd_k6_id_DeepCam3', reuse=is_reuse, with_w=True)
-        k6_id_FaceWH_JiePai, w_FaceWH_JiePai = linear_no_bias(k5_normalized, SUBJECT_NUM_FACEWH_JIEPAI, 'd_k6_id_FaceWH_JiePai', reuse=is_reuse, with_w=True)
-        k6_id_MegaFace, w_MegaFace = linear_no_bias(k5_normalized, SUBJECT_NUM_MEGAFACE, 'd_k6_id_MegaFace', reuse=is_reuse, with_w=True)
-        #k6_id_MSCeleb_1M, w_MSCeleb_1M = linear_no_bias(k5_normalized, SUBJECT_NUM_MSCELEB_1M, 'd_k6_id_MSCeleb_1M', reuse=is_reuse, with_w=True)
-        k6_id_Wuhan, w_Wuhan = linear_no_bias(k5_normalized, SUBJECT_NUM_WUHAN, 'd_k6_id_Wuhan', reuse=is_reuse, with_w=True)
-        k6_id_31239_pai3pi, w_31239_pai3pi = linear_no_bias(k5_normalized, SUBJECT_NUM_31239_PAI3PI, 'd_k6_id_31239_pai3pi', reuse=is_reuse, with_w=True)
-        k6_id_FactoryOne, w_FactoryOne = linear_no_bias(k5_normalized, SUBJECT_NUM_FACTORYONE, 'd_k6_id_FactoryOne', reuse=is_reuse, with_w=True)
-        k6_id_FactoryTwo, w_FactoryTwo = linear_no_bias(k5_normalized, SUBJECT_NUM_FACTORYTWO, 'd_k6_id_FactoryTwo', reuse=is_reuse, with_w=True)
+        
+        k6_id = k6_id_VGG2
+        k6_w = w_VGG2
 
-        k6_id = tf.concat([k6_id_VGG2, k6_id_DeepCam1, k6_id_DeepCam2, k6_id_DeepCam3, k6_id_FaceWH_JiePai, k6_id_MegaFace,
-                           k6_id_Wuhan, k6_id_31239_pai3pi, k6_id_FactoryOne, k6_id_FactoryTwo], axis=1)
-        k6_w = tf.concat([w_VGG2, w_deepcam1, w_deepcam2, w_deepcam3, w_FaceWH_JiePai, w_MegaFace,
-                          w_Wuhan, w_31239_pai3pi, w_FactoryOne, w_FactoryTwo], axis=1)
-        #k6_id   = AMSoftmax_logit(k5, id_label, embedding_size=self.dfc_dim, nrof_classes=self.subject_num, name='d_k6_id_lin', reuse=is_reuse)
-        #k6_pose = linear(k5, self.pose_dim,    'd_k6_pose_lin')
-
-        return k6_id, k5, k6_w #tf.nn.sigmoid(k6_real), k6_real, tf.nn.softmax(k6_id), k6_id, tf.nn.softmax(k6_pose), k6_pose, k5
+        return k6_id, k5, k6_w
 
      
             
